@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center">Expense Tracker</h1>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="expenseAmount" class="form-label"
+              >Choose Expense Amount</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              id="expenseAmount"
+              placeholder="Enter amount"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input
+              type="text"
+              class="form-control"
+              id="description"
+              placeholder="Enter description"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="category" class="form-label">Choose a Category</label>
+            <select class="form-select" id="category">
+              <option value="Food">Food</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <!-- Add more categories as needed -->
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addExpense()">
+            Add Expense
+          </button>
+        </div>
+        <div class="col-md-6">
+          <h3>Expense List</h3>
+          <ul id="expenseList" class="list-group">
+            <!-- Expense items will be displayed here -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize the expenses array with data from local storage if available
+      let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+      // Function to add an expense
+      function addExpense() {
+        const expenseAmount = parseFloat(
+          document.getElementById("expenseAmount").value
+        );
+        const description = document.getElementById("description").value;
+        const category = document.getElementById("category").value;
+
+        if (isNaN(expenseAmount) || description.trim() === "") {
+          alert("Please enter valid data.");
+          return;
+        }
+
+        const expense = {
+          amount: expenseAmount,
+          description: description,
+          category: category,
+        };
+
+        expenses.push(expense);
+        updateExpenseList();
+        saveExpenses();
+        clearInputFields();
+      }
+
+      // Function to edit an expense
+      function editExpense(index) {
+        // Get the expense data for the selected expense
+        const selectedExpense = expenses[index];
+
+        // Populate the input fields with the current expense data
+        document.getElementById("expenseAmount").value = selectedExpense.amount;
+        document.getElementById("description").value =
+          selectedExpense.description;
+        document.getElementById("category").value = selectedExpense.category;
+
+        // Remove the selected expense from the list
+        expenses.splice(index, 1);
+
+        // Update the expense list
+        updateExpenseList();
+
+        // Save the edited expenses to local storage
+        saveExpenses();
+      }
+
+      // Function to remove an expense
+      function removeExpense(index) {
+        expenses.splice(index, 1);
+        updateExpenseList();
+        saveExpenses();
+      }
+
+      // Function to update the expense list on the page
+      function updateExpenseList() {
+        const expenseList = document.getElementById("expenseList");
+        expenseList.innerHTML = "";
+
+        for (let i = 0; i < expenses.length; i++) {
+          const expense = expenses[i];
+          const listItem = document.createElement("li");
+          listItem.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+          listItem.innerHTML = `${expense.description} - ₹ ${expense.amount} (${expense.category})
+                    <div>
+                        <button class="btn btn-warning me-2" onclick="editExpense(${i})">Edit</button>
+                        <button class="btn btn-danger" onclick="removeExpense(${i})">Remove</button>
+                    </div>
+                `;
+          expenseList.appendChild(listItem);
+        }
+      }
+
+      // Function to save expenses to local storage
+      function saveExpenses() {
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+      }
+
+      // Function to clear input fields
+      function clearInputFields() {
+        document.getElementById("expenseAmount").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("category").value = "Food";
+      }
+
+      // Initial update of the expense list
+      updateExpenseList();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>
